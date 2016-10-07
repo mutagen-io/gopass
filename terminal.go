@@ -1,4 +1,4 @@
-// +build !solaris
+// +build !windows,!solaris
 
 package gopass
 
