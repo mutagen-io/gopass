@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"golang.org/x/term"
 )
 
 // echoMode encodes various types of echoing behavior.
@@ -69,12 +71,13 @@ func getPasswd(prompt string, mode echoMode, r FdReader, w io.Writer) ([]byte, e
 		mask = []byte("*")
 	}
 
-	if isTerminal(r.Fd()) {
-		if oldState, err := makeRaw(r.Fd()); err != nil {
+	rfd := int(r.Fd())
+	if term.IsTerminal(rfd) {
+		if oldState, err := term.MakeRaw(rfd); err != nil {
 			return pass, err
 		} else {
 			defer func() {
-				restore(r.Fd(), oldState)
+				term.Restore(rfd, oldState)
 				fmt.Fprintln(w)
 			}()
 		}
